@@ -1,8 +1,62 @@
 import { useState } from "react";
 import { navLinks } from "src/constants";
+import ethers from "ethers";
+
+
+
 
 const Header = () => {
   const [active, setActive] = useState("Home");
+  const [walletConnected, setWalletConnected] = useState(false);
+  const [walletAddress, setWalletAddress] = useState("");
+
+  // async function connectWallet(): Promise<void> {
+  //   const provider = await detectEthereumProvider();
+  //   if (provider) {
+  //     try {
+  //       // Request access to the user's accounts
+  //       await provider.request({ method: 'eth_requestAccounts' });
+  //       // The user has connected their wallet
+  //       // You can now use the provider to interact with the blockchain
+  //     } catch (error) {
+  //       // The user did not connect their wallet
+  //       console.error(error);
+  //     }
+  //   } else {
+  //     // Metamask is not installed or not connected
+  //     // Prompt the user to connect their wallet
+  //     alert('Please install Metamask');
+  //   }
+  // }
+
+  async function requestAccount() {
+    console.log('Requesting account...');
+    //check if metamask is installed
+    if(window.ethereum) {
+    try {
+      const accounts = await window.ethereum.request({
+        method: 'eth_requestAccounts',
+      });
+      console.log(accounts);
+      setWalletAddress(accounts[0]);
+    } catch (error) {
+      console.log('Error conneccting...');
+    }
+  }
+    else {
+      alert('Metamask not detected');
+    }    
+  }
+
+  async function connectWallet() {
+    if(typeof window.ethereum !== 'undefined') {
+      await requestAccount();
+
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+  }
+}
+  
+
 
   // just a random logo
 
@@ -31,9 +85,12 @@ const Header = () => {
         ))}
       </ul>
       <div className="flex justify-end items-center w-[400px]">
-        <button className="w-[140px] h-[40px] border-2 border-white rounded-md">
+        <button 
+        className="w-[140px] h-[40px] border-2 border-white rounded-md"
+        onClick={requestAccount}>
           Connect wallet
         </button>
+        <h3>Wallet Address: {walletAddress}</h3>
       </div>
     </nav>
   );
